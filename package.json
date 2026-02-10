@@ -1,0 +1,1 @@
+{"name":"twitch-bot","version":"1.0.0","description":"Aggressive competitive Twitch chat bot","main":"bot.js","scripts":{"start":"node bot.js"},"dependencies":{"tmi.js":"^1.8.5"}}
