@@ -1,54 +1,59 @@
 const tmi = require('tmi.js');
 
-// Configuration  
-const config = {
-    identity: {
-        username: 'BotUsername',  // Replace with your bot's username
-        password: 'oauth:your_oauth_token'  // Replace with your OAuth token
-    },
-    channels: ['your_channel_name']  // Replace with the channel to join
-};
+const client = new tmi.Client({
+  options: { debug: true },
+  connection: { reconnect: true, secure: true },
+  identity: {
+    username: process.env.BOT_USERNAME,
+    password: process.env.BOT_OAUTH
+  },
+  channels: [process.env.CHANNEL_NAME]
+});
 
-// Create a client  
-const client = new tmi.Client(config);
-
-// List of commands
 const commands = {
-    '!help': 'Available commands: !help, !join, !leave, !command1, !command2, !command3, !command4, !command5, !command6, !command7, !command8, !command9',
-    '!join': 'Joining the channel!',
-    '!leave': 'Leaving the channel!',
-    '!command1': 'Command 1 executed!',
-    '!command2': 'Command 2 executed!',
-    '!command3': 'Command 3 executed!',
-    '!command4': 'Command 4 executed!',
-    '!command5': 'Command 5 executed!',
-    '!command6': 'Command 6 executed!',
-    '!command7': 'Command 7 executed!',
-    '!command8': 'Command 8 executed!',
-    '!command9': 'Command 9 executed!'
+  '!hype': 'LOCK THE HELL IN. We\'re not here to play—we\'re here to break whoever queues up.',
+  '!clutch': 'THAT\'S ICE IN THE VEINS. No panic. No fear. Just execution.',
+  '!push': 'SEND IT. Overwhelm them. Outpace them. Outgun them. No breathing room.',
+  '!focus': 'DIAL IN. No excuses. No slip-ups. Win the fight, win the game.',
+  '!gg': 'GG. Respect the grind—but next round, we\'re taking everything.',
+  '!tilt': 'SHAKE IT OFF. Champions don\'t tilt—they adapt and destroy.',
+  '!coach': 'LISTEN UP. You know the strat. You know the angles. Now execute and crush them.',
+  '!cast': 'AND THEY GET ABSOLUTELY DEMOLISHED! Zero room. Zero mercy. Pure domination!',
+  '!trash': 'They\'re getting outplayed in every category. Footwork? Weak. Aim? Weak. Mental? Broken.'
 };
 
-// Connect to Twitch  
-client.connect();
+client.connect().catch(err => {
+  console.error('Failed to connect:', err);
+  process.exit(1);
+});
 
-// Event listener for messages  
 client.on('message', (channel, tags, message, self) => {
-    if(self) return;  // Ignore messages from the bot
-    const command = message.split(' ')[0];  // Get the command from the message
-
-    // Check if command is available and respond
-    if(commands[command]) {
-        client.say(channel, commands[command]);
-    } else {
-        client.say(channel, `Command not found. Type !help for a list of commands.`);
-    }
+  if (self) return;
+  const msg = message.toLowerCase().trim();
+  if (commands[msg]) {
+    client.say(channel, commands[msg]).catch(err => {
+      console.error('Failed to send message:', err);
+    });
+  }
 });
 
-// Error handling  
+client.on('connected', (address, port) => {
+  console.log(`Connected to ${address}:${port}`);
+});
+
+client.on('disconnected', (reason) => {
+  console.error(`Disconnected: ${reason}`);
+});
+
 client.on('error', (err) => {
-    console.error('Error:', err);
+  console.error('Client error:', err);
 });
 
-client.on('connected', (addr, port) => {
-    console.log(`* Connected to ${addr}:${port}`);
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Rejection:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
 });
